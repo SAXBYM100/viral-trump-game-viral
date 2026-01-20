@@ -41,7 +41,16 @@ export default function Play() {
 
   return (
     <div className="card">
-      <img className="image" src={current.image} />
+    <img
+  className="image"
+  src={`/api/image?topic=${encodeURIComponent(current.title)}&v=${index}`}
+  alt={current.title}
+  loading="lazy"
+  onError={(e) => {
+    (e.currentTarget as HTMLImageElement).src = `/api/image?topic=breaking-news&v=${Date.now()}`;
+  }}
+/>
+
       <h2>{current.title}</h2>
       {reaction && <h3>{reaction}</h3>}
 
