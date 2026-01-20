@@ -1,12 +1,16 @@
-export default async function handler(req, res) {
-  const topic = req.query.topic || "news";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-  const url = `https://picsum.photos/800/600`;
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  const topic = String(req.query.topic || "news");
 
-  const response = await fetch(url);
-  const buffer = await response.arrayBuffer();
+  // deterministic seed so same topic tends to show same-ish image
+  const seed = encodeURIComponent(topic.toLowerCase().trim());
 
-  res.setHeader("Content-Type", "image/jpeg");
-  res.setHeader("Cache-Control", "no-cache");
-  res.send(Buffer.from(buffer));
+  // Picsum is simple + reliable (no API key). This returns an actual image.
+  const url = `https://picsum.photos/seed/${seed}/900/500`;
+
+  // Redirect the browser to the image so <img src="/api/image?..."> works.
+  res.setHeader("Cache-Control", "public, s-maxage=86400, stale-while-revalidate=604800");
+  res.writeHead(302, { Location: url });
+  res.end();
 }
